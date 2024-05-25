@@ -1,0 +1,43 @@
+import profesionales.*
+import universidad.*
+import empresaDeServicios.*
+import solicitantes.*
+
+describe "Los solicitantes pueden ser personas o instituciones o clubes. Nos interesa saber para cada solicitante si puede (o no) ser atendido por un profesional"{	
+	method initialize(){
+		juana.universidad(universidadDeRosario)
+		melina.universidad(universidadDeCorrientes)
+		rocio.universidad(universidadDeHurlingham)
+		luciana.universidad(universidadDeRosario)
+		luciana.agregarProvinciasDondeTrabajar("Buenos Aires")
+		rocio.agregarProvinciasDondeTrabajar("Buenos Aires")
+		club1.agregarProvinciaDondeEstaUbicado("Buenos Aires")
+		club1.agregarProvinciaDondeEstaUbicado("Santa Fe")
+		club1.agregarProvinciaDondeEstaUbicado("Corrientes")
+		institucion1.agregarUniversidadReconocida(universidadDeRosario)
+		institucion1.agregarUniversidadReconocida(universidadDeHurlingham)
+	}
+	test "La persona devuelve la provincia donde vive y puede ser atendida por los profesionales que pueden trabajar en la provncia donde vive la persona"{
+		assert.notThat(persona1.puedeSerAtendidoPor(juana))
+		assert.notThat(persona1.puedeSerAtendidoPor(melina))
+		assert.that(persona1.puedeSerAtendidoPor(rocio))
+		assert.that(persona1.puedeSerAtendidoPor(luciana))
+	}
+	test "Cada institución tiene una lista de universidades que reconoce. Puede ser atendida por los profesionales que estudiaron en alguna de las universidades reconocidas por la institución"{
+		assert.that(institucion1.puedeSerAtendidoPor(juana))
+		assert.notThat(institucion1.puedeSerAtendidoPor(melina))
+		assert.that(institucion1.puedeSerAtendidoPor(rocio))
+		assert.that(institucion1.puedeSerAtendidoPor(luciana))
+	}
+	test "Un club puede estar en varias provincias lo que interesa es saber en que provincias está y podrá ser atendido si al menos 1 profesional puede trabajar en alguna de las provincias donde está el club"{
+		assert.that(club1.puedeSerAtendidoPor(juana))
+		assert.that(club1.puedeSerAtendidoPor(melina))
+		assert.that(club1.puedeSerAtendidoPor(rocio))
+		assert.that(club1.puedeSerAtendidoPor(luciana))
+	}
+	test "A una empresa se le tiene que poder preguntar si puede satisfacer a un solicitante. La condición para esto es que el solicitante pueda ser atendido por, al menos, uno de los profesionales contratados por la empresa"{
+		empresa1.contratarProfesional(rocio)
+		rocio.agregarProvinciasDondeTrabajar("Buenos Aires")
+		assert.that(empresa1.puedeSatisfacerASolicitante(persona1))
+	}
+}
